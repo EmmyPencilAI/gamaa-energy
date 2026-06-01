@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>Gamaa Energy • Hybrid Solar & Wind | Clean Power Nigeria</title>
+  <link rel="icon" type="image/png" href="logo.PNG">
+  
+  <!-- SEO & Social Media Meta Tags -->
+  <meta name="description" content="Gamaa Renewable Energy - Leading provider of Hybrid Solar & Wind solutions in Nigeria. Reliable power for homes and businesses.">
+  <meta property="og:title" content="Gamaa Energy • Hybrid Solar & Wind">
+  <meta property="og:description" content="Switch to affordable, intelligent hybrid energy solutions. Serving Abuja, Lagos, and Nationwide.">
+  <meta property="og:image" content="logo.PNG">
+  <meta property="og:url" content="https://gamaaenergy.com">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="logo.PNG">
+
+  <!-- Bootstrap 5 + Icons + Google Fonts + Swiper + Leaflet -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #021a0b;
+      color: #eef5e9;
+      overflow-x: hidden;
+    }
+    /* Canvas 3D Background */
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      background: linear-gradient(135deg, #021a0b 0%, #0a2f15 100%);
+    }
+    .content-overlay {
+      position: relative;
+      z-index: 10;
+      backdrop-filter: blur(3px);
+    }
+    /* Navbar */
+    .navbar {
+      background: rgba(8, 30, 18, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(46, 158, 75, 0.5);
+    }
+    .navbar-brand {
+      font-weight: 800;
+      font-size: 1.7rem;
+      color: #fff !important;
+      letter-spacing: -0.5px;
+    }
+    .navbar-brand span { color: #2e9e4b; }
+    .nav-link {
+      color: rgba(255,255,255,0.9) !important;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    .nav-link:hover, .nav-link.active { color: #2e9e4b !important; }
+    .btn-primary-green {
+      background: linear-gradient(135deg, #2e9e4b, #1f6e3c);
+      border: none;
+      border-radius: 40px;
+      padding: 0.6rem 2rem;
+      font-weight: 600;
+      color: white;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(46,158,75,0.4);
+    }
+    .btn-primary-green:hover { transform: translateY(-2px); background: #3ab558; color: white; }
+    .btn-outline-light-green {
+      border: 2px solid #2e9e4b;
+      background: transparent;
+      border-radius: 40px;
+      padding: 0.5rem 1.8rem;
+      color: white;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    .btn-outline-light-green:hover { background: #2e9e4b; color: white; }
+    /* Hero Carousel */
+    .hero-carousel-item {
+      border-radius: 28px;
+      overflow: hidden;
+      max-height: 450px;
+    }
+    .hero-slider-img {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+    }
+    @media (max-width: 768px) {
+      .hero-slider-img { height: 260px; }
+    }
+    /* Glass cards */
+    .glass-card, .service-card, .project-card, .why-card, .testimonial-card, .faq-card, .calc-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border-radius: 28px;
+      padding: 1.6rem;
+      transition: all 0.25s;
+      color: #1a3b2a;
+      border: 1px solid rgba(46,158,75,0.3);
+      height: 100%;
+      box-shadow: 0 8px 20px rgba(0,20,5,0.1);
+    }
+    .service-card:hover, .project-card:hover { transform: translateY(-8px); border-color: #2e9e4b; background: white; }
+    .section-title {
+      font-weight: 800;
+      font-size: 2.2rem;
+      border-left: 6px solid #2e9e4b;
+      padding-left: 1rem;
+      margin-bottom: 2rem;
+      color: white;
+    }
+    .why-img {
+      width: 85px;
+      height: 85px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 1rem;
+      border: 3px solid #2e9e4b;
+    }
+    .icon-green { font-size: 2.5rem; color: #2e9e4b; margin-bottom: 1rem; }
+    /* Map */
+    #realtime-map {
+      height: 280px;
+      width: 100%;
+      border-radius: 20px;
+      z-index: 1;
+    }
+    /* Floating popups */
+    .floating-update {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: #0f2c14;
+      backdrop-filter: blur(10px);
+      color: #e4f7de;
+      padding: 12px 22px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      z-index: 1200;
+      max-width: 340px;
+      border-left: 5px solid #6ef04b;
+      box-shadow: 0 8px 20px black;
+      animation: fadeInRight 0.3s ease-out;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    @keyframes fadeInRight {
+      from { transform: translateX(80px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    /* Accordion custom */
+    .accordion-button {
+      background-color: #eef5e9;
+      color: #0a3b1a;
+      font-weight: 600;
+    }
+    .accordion-button:not(.collapsed) {
+      background-color: #c8e6cf;
+      color: #0a3b1a;
+    }
+    footer {
+      background: #051a0c;
+      color: #ccddd0;
+    }
+    .calculator-output {
+      background: #eef5e9;
+      border-radius: 20px;
+      padding: 0.8rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div id="canvas-container"></div>
+
+<div class="content-overlay">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <img src="logo.PNG" alt="Gamaa Energy Logo" style="height: 50px; width: auto; margin-right: 12px; border-radius: 50%;">
+        Gamaa<span style="color:#b8e4c0;">Energy</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+        <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+          <li class="nav-item"><a class="nav-link active" href="#home">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="#testimonials">Reviews</a></li>
+          <li class="nav-item"><a class="nav-link" href="#faq">FAQ</a></li>
+          <li class="nav-item ms-2"><a class="btn btn-primary-green" href="#contact">Get Quote</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section with sliding images (carousel) -->
+  <section id="home" class="pt-5 pb-4">
+    <div class="container">
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-6">
+          <h1 class="display-3 fw-bold">Powering a <span class="text-warning">Brighter, Cleaner</span> & Sustainable Future</h1>
+          <p class="lead my-4">Reliable Hybrid Energy (Solar + Wind) for Homes, Businesses & Industries. Switch to affordable, intelligent energy.</p>
+          <div class="d-flex gap-3 flex-wrap">
+            <button class="btn btn-primary-green btn-lg" onclick="alert('📞 Free consultation: +234 813 292 2697')"><i class="fas fa-solar-panel me-2"></i>Free Consult</button>
+            <button class="btn btn-outline-light-green btn-lg" onclick="document.getElementById('calculator').scrollIntoView({behavior:'smooth'})"><i class="fas fa-calculator me-2"></i>Savings Calculator</button>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner rounded-4 shadow-lg">
+              <div class="carousel-item active"><img src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=800&h=450&fit=crop" class="hero-slider-img" alt="Solar Farm"></div>
+              <div class="carousel-item"><img src="https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=800&h=450&fit=crop" class="hero-slider-img" alt="Wind turbine"></div>
+              <div class="carousel-item"><img src="https://images.unsplash.com/photo-1559305616-3f99cd43e353?w=800&h=450&fit=crop" class="hero-slider-img" alt="Hybrid energy"></div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About + Real picture beside Gamaa -->
+  <section id="about" class="py-5">
+    <div class="container">
+      <div class="glass-card p-4 p-lg-5">
+        <div class="row align-items-center">
+          <div class="col-lg-7">
+            <h2 class="section-title" style="color:#1a3b2a;">About Gamaa Renewable Energy</h2>
+            <p class="fs-5">Gamaa Renewable Energy is a trusted renewable energy company delivering quality solar power solutions, inverter systems, lithium battery storage, electrical installations, and energy-saving solutions for residential, commercial, and industrial clients in Nigeria. We focus on solar + wind hybrid systems to maximize uptime and sustainability.</p>
+            <div class="row mt-3">
+              <div class="col-6"><i class="fas fa-check-circle text-success me-2"></i> 20+ Years Experience</div>
+              <div class="col-6"><i class="fas fa-check-circle text-success me-2"></i> Certified Technicians</div>
+              <div class="col-6 mt-2"><i class="fas fa-check-circle text-success me-2"></i> Nationwide Installation</div>
+              <div class="col-6 mt-2"><i class="fas fa-check-circle text-success me-2"></i> 24/7 After-Sales Support</div>
+            </div>
+          </div>
+          <div class="col-lg-5 text-center mt-4 mt-lg-0">
+            <img src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=400&h=300&fit=crop" class="img-fluid rounded-4 shadow-lg" alt="Gamaa Team Nigeria" style="max-height: 240px; object-fit: cover; width: 100%;">
+            <p class="mt-2 fw-bold text-dark">Gamaa Energy HQ – Abuja, Nigeria</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services" class="py-5">
+    <div class="container">
+      <h2 class="section-title">Our Hybrid Energy Services</h2>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3"><div class="service-card text-center"><i class="fas fa-solar-panel icon-green"></i><h5>Solar Installation</h5><p>High quality solar systems for homes & industries.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="service-card text-center"><i class="fas fa-battery-full icon-green"></i><h5>Lithium Storage</h5><p>Reliable lithium battery storage solutions.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="service-card text-center"><i class="fas fa-microchip icon-green"></i><h5>Inverter Experts</h5><p>Expert inverter installation for uninterrupted power.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="service-card text-center"><i class="fas fa-wind icon-green"></i><h5>Wind Hybrid Systems</h5><p>Integrated wind + solar for max output.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="service-card text-center"><i class="fas fa-industry icon-green"></i><h5>Industrial Solar</h5><p>Scalable solutions for large businesses.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="service-card text-center"><i class="fas fa-street-view icon-green"></i><h5>Solar Street Lights</h5><p>Energy-efficient street lighting systems.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="service-card text-center"><i class="fas fa-tint icon-green"></i><h5>Solar Water Pumping</h5><p>Sustainable pumping for farms & homes.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="service-card text-center"><i class="fas fa-tools icon-green"></i><h5>24/7 Maintenance</h5><p>Professional support & technical service.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Projects (real images) -->
+  <section id="projects" class="py-5">
+    <div class="container">
+      <h2 class="section-title">Featured Projects</h2>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3"><div class="project-card"><img src="https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=200&fit=crop" class="img-fluid rounded-3 mb-3" style="height:150px; width:100%; object-fit:cover;"><h5>Residential Solar System</h5><p>Abuja | 5kWp solar + lithium backup</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="project-card"><img src="https://images.unsplash.com/photo-1497440001374-f26997328c1b?w=400&h=200&fit=crop" class="img-fluid rounded-3 mb-3" style="height:150px; width:100%; object-fit:cover;"><h5>60kVA Solar Installation</h5><p>Abuja | Hybrid commercial hub</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="project-card"><img src="https://images.unsplash.com/photo-1548611635-b6e7827d6d4a?w=400&h=200&fit=crop" class="img-fluid rounded-3 mb-3" style="height:150px; width:100%; object-fit:cover;"><h5>Commercial Installation</h5><p>Lagos | 100kW hybrid wind-solar</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="project-card"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=200&fit=crop" class="img-fluid rounded-3 mb-3" style="height:150px; width:100%; object-fit:cover;"><h5>Battery/Inverter Room</h5><p>Abuja | Industrial grade backup</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonial Slider (No Arrows, only pagination + autoplay) -->
+  <section id="testimonials" class="py-5 bg-dark-transparent" style="background: rgba(10,30,10,0.6); backdrop-filter: blur(4px);">
+    <div class="container">
+      <h2 class="section-title text-white">What Our Clients Say</h2>
+      <div class="swiper testimonialSwiper">
+        <div class="swiper-wrapper" id="testimonialWrapper"></div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ ACCORDION -->
+  <section id="faq" class="py-5">
+    <div class="container">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="accordion" id="faqAccordion1">
+            <div class="accordion-item mb-3 rounded-4 border-0 shadow-sm">
+              <h2 class="accordion-header"><button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#faq1">What makes hybrid solar+wind better?</button></h2>
+              <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion1"><div class="accordion-body">Hybrid systems combine solar and wind to generate power even during cloudy or low-wind periods, increasing reliability and efficiency.</div></div>
+            </div>
+            <div class="accordion-item mb-3 rounded-4 border-0"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#faq2">Do you offer installation nationwide?</button></h2><div id="faq2" class="accordion-collapse collapse"><div class="accordion-body">Yes! We cover all Nigerian states and the FCT, from residential to industrial projects.</div></div></div>
+            <div class="accordion-item mb-3 rounded-4 border-0"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#faq3">What is the lifespan of lithium batteries?</button></h2><div id="faq3" class="accordion-collapse collapse"><div class="accordion-body">Our lithium batteries last 8–10 years with proper maintenance and come with a 5-year warranty.</div></div></div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="accordion" id="faqAccordion2">
+            <div class="accordion-item mb-3 rounded-4 border-0"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#faq4">Can I run my business entirely on solar?</button></h2><div id="faq4" class="accordion-collapse collapse"><div class="accordion-body">Absolutely. We design scalable hybrid systems for 24/7 power, often combined with wind for industrial loads.</div></div></div>
+            <div class="accordion-item mb-3 rounded-4 border-0"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#faq5">How much can I save with solar?</button></h2><div id="faq5" class="accordion-collapse collapse"><div class="accordion-body">Savings vary, but clients reduce electricity bills by 60-90% after switching. Use our calculator below!</div></div></div>
+            <div class="accordion-item mb-3 rounded-4 border-0"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#faq6">Do you provide maintenance services?</button></h2><div id="faq6" class="accordion-collapse collapse"><div class="accordion-body">Yes, we have 24/7 technical support and annual maintenance contracts for all installations.</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLAR SAVINGS CALCULATOR -->
+  <section id="calculator" class="py-5">
+    <div class="container">
+      <div class="calc-card p-4">
+        <h3 class="fw-bold text-center"><i class="fas fa-calculator text-success me-2"></i> Hybrid Solar Savings Estimator</h3>
+        <p class="text-center">Estimate your monthly savings with Gamaa energy</p>
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Current Monthly Electricity Bill (₦)</label>
+            <input type="number" id="billInput" class="form-control mb-3" placeholder="e.g., 50000" value="50000">
+            <button id="calcBtn" class="btn btn-primary-green w-100 mb-3">Calculate Savings</button>
+            <div id="calcResult" class="calculator-output text-center">Estimated savings: ₦0 / month</div>
+            <div class="small text-muted mt-2 text-center">*Based on average 75% reduction using hybrid solar+wind system.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Map & Contact / Quote -->
+  <section id="contact" class="py-5">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <h3 class="section-title" style="color:white;">Live Location</h3>
+          <div id="realtime-map" class="shadow-lg mb-3"></div>
+          <p class="text-white"><i class="fas fa-map-pin text-success"></i> Garki II, Abuja, Nigeria | +234 813 292 2697</p>
+        </div>
+        <div class="col-md-6" id="quote">
+          <div class="glass-card p-4">
+            <h3 class="fw-bold">Request a Free Quotation</h3>
+            <form id="quoteForm">
+              <div class="row g-3">
+                <div class="col-12"><input type="text" class="form-control" placeholder="Full Name" required></div>
+                <div class="col-12"><input type="email" class="form-control" placeholder="Email" required></div>
+                <div class="col-12"><input type="tel" class="form-control" placeholder="Phone"></div>
+                <div class="col-12"><select class="form-select"><option>Solar + Wind Hybrid</option><option>Solar Only</option><option>Lithium Battery</option><option>Industrial Solution</option></select></div>
+                <div class="col-12"><textarea rows="2" class="form-control" placeholder="Energy needs..."></textarea></div>
+                <div class="col-12"><button class="btn btn-primary-green w-100" type="button" onclick="alert('✅ Quote request sent! Our team will reach out.')">Send Request</button></div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Ready to cut cost -->
+  <section class="py-4">
+    <div class="container text-center">
+      <div class="glass-card d-inline-block px-5 py-4 w-100">
+        <h2 class="fw-bold">⚡ Ready to Cut Your Electricity Cost?</h2>
+        <button class="btn btn-primary-green btn-lg mt-2" onclick="alert('Free site inspection: call +234 813 292 2697')"><i class="fas fa-clipboard-list me-2"></i>Get Free Site Inspection</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer text-center py-4">
+    <div class="container">
+      <img src="logo.PNG" alt="Gamaa Energy Logo" style="height: 60px; margin-bottom: 15px; border-radius: 50%;">
+      <p>© 2025 Gamaa Renewable Energy – Hybrid Solar & Wind Solutions | Abuja, Lagos, Nationwide</p>
+      <small>Powering a greener Nigeria</small>
+    </div>
+  </footer>
+</div>
+
+<!-- Floating Popups Container -->
+<div id="popup-container"></div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Three.js Module -->
+<script type="importmap">
+  { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js" } }
+</script>
+
+<script type="module">
+  import * as THREE from 'three';
+
+  const container = document.getElementById('canvas-container');
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x021a0b);
+  scene.fog = new THREE.FogExp2(0x021a0b, 0.008);
+
+  const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(5, 3, 9);
+  camera.lookAt(0, 1, 0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  container.appendChild(renderer.domElement);
+
+  const ambientLight = new THREE.AmbientLight(0x2e5a3b, 0.55);
+  scene.add(ambientLight);
+  const dirLight = new THREE.DirectionalLight(0xf5f0d7, 0.9);
+  dirLight.position.set(8, 12, 5);
+  dirLight.castShadow = true;
+  scene.add(dirLight);
+  const fillLight = new THREE.PointLight(0x2e9e4b, 0.6);
+  fillLight.position.set(1, 2, 2);
+  scene.add(fillLight);
+
+  // Central energy orb
+  const coreGroup = new THREE.Group();
+  const orbMat = new THREE.MeshStandardMaterial({ color: 0xf5c542, emissive: 0x5a3a00, emissiveIntensity: 0.7 });
+  const orb = new THREE.Mesh(new THREE.SphereGeometry(0.9, 64, 64), orbMat);
+  coreGroup.add(orb);
+  // floating particles
+  const particleCount = 800;
+  const partGeo = new THREE.BufferGeometry();
+  const positions = new Float32Array(particleCount * 3);
+  for (let i = 0; i < particleCount; i++) {
+    positions[i*3] = (Math.random() - 0.5) * 12;
+    positions[i*3+1] = Math.random() * 5;
+    positions[i*3+2] = (Math.random() - 0.5) * 10 - 2;
+  }
+  partGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const particleMat = new THREE.PointsMaterial({ color: 0x88dd88, size: 0.07, transparent: true });
+  const particlesSys = new THREE.Points(partGeo, particleMat);
+  coreGroup.add(particlesSys);
+  
+  const rings = [];
+  for (let i=0; i<3; i++) {
+    const ringGeo = new THREE.TorusGeometry(1.3 + i*0.3, 0.05, 32, 100);
+    const ringMat = new THREE.MeshStandardMaterial({ color: 0xaaffaa, emissive: 0x1a4d1a });
+    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    ringMesh.rotation.x = Math.PI / 2;
+    coreGroup.add(ringMesh);
+    rings.push(ringMesh);
+  }
+  scene.add(coreGroup);
+
+  // floating small cubes
+  const cubesGroup = new THREE.Group();
+  for (let i=0; i<60; i++) {
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.1,0.1,0.1), new THREE.MeshStandardMaterial({ color: 0x3cba54 }));
+    const angle = (i / 60) * Math.PI * 2;
+    box.position.set(Math.cos(angle)*2.4, Math.sin(angle*2)*0.9, Math.sin(angle)*2.2);
+    cubesGroup.add(box);
+  }
+  scene.add(cubesGroup);
+
+  let time = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    time += 0.008;
+    coreGroup.rotation.y += 0.003;
+    coreGroup.rotation.x = Math.sin(time * 0.5) * 0.1;
+    particlesSys.rotation.y += 0.001;
+    cubesGroup.rotation.y += 0.004;
+    cubesGroup.rotation.z += 0.002;
+    rings.forEach((r, idx) => { r.rotation.z += 0.005 + idx*0.002; });
+    fillLight.intensity = 0.6 + Math.sin(time * 3) * 0.2;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // TESTIMONIALS DATA (20+ clients, no arrows)
+  const testimonialList = [
+    "Mr. Ibrahim K., Abuja – “Best solar solution for our office, professional team!”","Amina B., Kano – “Wind hybrid system changed our business, reliable 24/7!”","Chidi O., Lagos – “Excellent after-sales, lithium batteries are top.”","Mrs. Grace E., PH – “Now saving 70% electricity costs.”","Usman D., Kaduna – “Fast installation, quality products.”","Fatima S., Abuja – “Hybrid solution is a game changer.”","Engr. John, Ibadan – “Industrial solar executed perfectly.”","Ngozi A., Enugu – “Best renewable company in Nigeria.”","Yakubu M., Nassarawa – “5kVA system installed seamlessly.”","Bisola T., Lagos – “Support team responds immediately.”","Victor N., Delta – “Solar street lights bright and durable.”","Halima R., Sokoto – “Highly efficient solar water pumping.”","Peter O., Abuja – “Battery room setup is top-notch.”","Kemi A., Ogun – “Transparent pricing.”","Samuel C., Rivers – “Wind turbine integration perfect for coastal.”","Zainab L., Kwara – “Switched to Gamaa, never regretted.”","Rashid B., Kogi – “Affordable premium equipment.”","Femi J., Ondo – “Inverter done in 2 days.”","Joy N., Abuja – “Reduced diesel by 90%.”","Abdullahi K., Bauchi – “Professional from start to finish.”"
+  ];
+  const swiperWrapper = document.getElementById('testimonialWrapper');
+  testimonialList.forEach(text => {
+    const slide = document.createElement('div');
+    slide.className = 'swiper-slide';
+    slide.innerHTML = `<div class="testimonial-card text-center mx-auto" style="max-width:500px;"><i class="fas fa-quote-left fa-2x text-success"></i><p class="fst-italic mt-2">“${text.split('–')[1] ? text.split('–')[1].trim() : text}”</p><h6 class="fw-bold">${text.split('–')[0]}</h6><div class="text-warning">★★★★★</div></div>`;
+    swiperWrapper.appendChild(slide);
+  });
+  new Swiper('.testimonialSwiper', {
+    loop: true,
+    autoplay: { delay: 4200, disableOnInteraction: false },
+    pagination: { el: '.swiper-pagination', clickable: true },
+    slidesPerView: 1,
+    breakpoints: { 768: { slidesPerView: 2 } }
+  });
+
+  // Map
+  const map = L.map('realtime-map').setView([9.0765, 7.3986], 13);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OSM' }).addTo(map);
+  L.marker([9.0765, 7.3986]).addTo(map).bindPopup('📍 Gamaa Energy HQ, Abuja').openPopup();
+
+  // Calculator Logic
+  document.getElementById('calcBtn').addEventListener('click', () => {
+    let bill = parseFloat(document.getElementById('billInput').value);
+    if (isNaN(bill)) bill = 0;
+    const savings = bill * 0.75;
+    document.getElementById('calcResult').innerHTML = `Estimated monthly savings: ₦${savings.toFixed(0)}<br>Payback within 3-5 years!`;
+  });
+
+  // Live Updates Popups
+  const updatesMessages = [
+    "⚡ Usman just made an order of 5Kva Hybrid Energy in Nassarawa state!",
+    "🏥 Gamaa Energy just wired 50Kva Hybrid Energy at a Private Hospital Lagos!",
+    "🌞 New solar street light project installed in Kaduna (80 units)",
+    "🔋 Mr. Adebayo purchased 10kW Lithium battery system in Ibadan",
+    "💨 Wind turbine + solar hybrid successfully commissioned in Kano",
+    "🏡 Residential solar + inverter setup completed in Port Harcourt",
+    "📦 100kW industrial solar for factory in Abeokuta",
+    "💡 Amina's farm now uses solar water pumping & irrigation."
+  ];
+  function showPopup() {
+    const popupDiv = document.createElement('div');
+    popupDiv.className = 'floating-update';
+    const msg = updatesMessages[Math.floor(Math.random() * updatesMessages.length)];
+    popupDiv.innerHTML = `<i class="fas fa-bolt me-2"></i> ${msg}`;
+    document.getElementById('popup-container').appendChild(popupDiv);
+    setTimeout(() => popupDiv.style.opacity = '1', 10);
+    setTimeout(() => { popupDiv.style.opacity = '0'; setTimeout(() => popupDiv.remove(), 600); }, 6500);
+  }
+  setInterval(showPopup, 17000);
+  setTimeout(showPopup, 3000);
+</script>
+</body>
+</html>
